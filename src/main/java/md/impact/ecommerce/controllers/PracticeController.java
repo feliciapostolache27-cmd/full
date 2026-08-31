@@ -10,15 +10,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * Resursa de practica pentru Lectia 1.
- *
- * Fiecare verb HTTP are propria metoda. Metodele care primesc date
- * (POST, PUT, PATCH, DELETE) citesc corpul cererii ca text brut si il
- * retrimit in raspuns, ca elevii sa vada exact ce au trimis.
- *
- * Raspunsurile sunt text simplu (text/plain), nu JSON.
- */
 @RestController
 @RequestMapping(path = "/api/practice", produces = MediaType.TEXT_PLAIN_VALUE)
 public class PracticeController {
