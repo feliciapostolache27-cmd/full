@@ -1,63 +1,80 @@
-# Impact E-Commerce — Backend (Lecția 1)
+# Impact E-Commerce — Backend
 
-Backend de referință Spring Boot pentru practica de la Lecția 1: o singură resursă,
-`/api/practice`, care răspunde la toate cele cinci verbe HTTP.
+Backend de referință Spring Boot pentru Anul 2. Crește lecție cu lecție.
 
-| Verb | Răspuns |
-|------|---------|
+## Lecția 1 — ruta de practică (`/api/practice`)
+| Verb | Răspuns (`text/plain`) |
+|------|------------------------|
 | `GET`    | `api initialised` |
-| `POST`   | `youve posted: {corpul cererii}` |
-| `PUT`    | `your update is : {corpul cererii}` |
-| `PATCH`  | `you have updated the : {corpul cererii}` |
-| `DELETE` | `youve deleted : {corpul cererii}` |
+| `POST`   | `youve posted: {corp}` |
+| `PUT`    | `your update is : {corp}` |
+| `PATCH`  | `you have updated the : {corp}` |
+| `DELETE` | `youve deleted : {corp}` |
 
-Răspunsurile sunt **text simplu** (`text/plain`). Dacă o cerere nu are corp,
-în locul acestuia apare `{}`.
+## Lecția 2 — PostgreSQL + entități + JWT
+| Metodă & rută | Acces | Descriere |
+|---|---|---|
+| `GET /api/products`        | public | lista de produse din baza de date |
+| `GET /api/products/{id}`   | public | un produs (404 dacă nu există) |
+| `POST /api/auth/register`  | public | creează un cont, întoarce un JWT |
+| `POST /api/auth/login`     | public | autentificare, întoarce un JWT |
+| `GET /api/auth/me`         | **token** | utilizatorul curent |
+
+Erorile vin ca JSON: `{ "status": 404, "message": "..." }`.
 
 ## Cerințe
-- Java 17 sau mai nou (`java -version`)
-- Maven — sau folosiți wrapper-ul inclus (`./mvnw`), sau porniți din IntelliJ IDEA
+- Java 17+
+- PostgreSQL local, cu baza de date **`e-commerce`** creată și populată
+  (rulați scripturile din `2 Year/Lesson 2/`: `create_database.sql` → `create_tables.sql` → `insert_data.sql`)
+
+## Configurarea bazei de date
+`src/main/resources/application.yaml` folosește implicit `postgres` / parola de pe
+calculatorul profesorului. **Puneți parola voastră** acolo, sau prin variabile de mediu:
+```bash
+SPRING_DATASOURCE_PASSWORD=parola_ta ./mvnw spring-boot:run
+```
+`ddl-auto` este `none` — schema vine din scripturile SQL, nu din ORM.
 
 ## Rulare
 ```bash
-./mvnw spring-boot:run       # Linux / macOS / Git Bash
+./mvnw spring-boot:run       # Git Bash / Linux / macOS
 mvnw.cmd spring-boot:run     # Windows cmd / PowerShell
 ```
-Aplicația pornește pe **http://localhost:8080**.
-Din IntelliJ: deschideți `pom.xml` ca proiect și rulați `EcommerceApplication`.
+Pornește pe **http://localhost:8080**. Din IntelliJ: deschideți `pom.xml`, rulați `EcommerceApplication`.
 
 ## Test rapid
 ```bash
-curl http://localhost:8080/api/practice
-curl -X POST -H "Content-Type: application/json" -d '{"name":"Tricou"}' http://localhost:8080/api/practice
+curl http://localhost:8080/api/products
+curl -X POST -H "Content-Type: application/json" \
+     -d '{"email":"user@impact.md","password":"user123"}' \
+     http://localhost:8080/api/auth/login
 ```
+Conturi din `insert_data.sql`: `admin@impact.md` / `admin123` (ADMIN), `user@impact.md` / `user123` (USER).
 
 ## Teste automate
 ```bash
 ./mvnw test
 ```
+Testele folosesc o bază de date **H2 în memorie** (nu PostgreSQL) — rulează oriunde și
+nu ating datele voastre reale.
 
 ## Structura pachetelor (layout standard pe straturi)
 ```
 src/main/java/md/impact/ecommerce/
-  EcommerceApplication.java   punctul de pornire
+  EcommerceApplication.java
 
-  controllers/   controllere REST — primesc cererile HTTP, deleaga, intorc raspunsul
-  services/      logica de business — reguli, orchestrarea repository-urilor, Entity <-> DTO
-  repositories/  acces la baza de date — interfete Spring Data JPA
-  entities/      entitati JPA — clase care corespund tabelelor
-  dtos/          Data Transfer Objects — forma datelor schimbate cu clientul
-  exceptions/    exceptii proprii + handler global de erori
-  config/        configurare (CORS, securitate, beans)
-
-src/main/resources/application.yaml   port + logging
-src/test/java/.../controllers/        teste (aceeasi structura ca src/main)
+  controllers/   PracticeController, ProductController, AuthController
+  services/      ProductService, AuthService
+  repositories/  ProductRepository, CategoryRepository, UserRepository
+  entities/      Product, Category, User, Role
+  dtos/          ProductResponse, RegisterRequest, LoginRequest, AuthResponse
+  exceptions/    ApiException + GlobalExceptionHandler
+  security/      JwtService, JwtAuthFilter
+  config/        CorsConfig, SecurityConfig
 ```
-La Lecția 1 sunt folosite doar `controllers/` (o rută de practică) și `config/` (CORS).
-Restul pachetelor sunt goale acum (cu un `package-info.java` care le descrie) și se
-umplu de la Lecția 2 în sus. Fiecare clasă nouă merge în pachetul stratului ei.
+Fiecare pachet gol are un `package-info.java` care îl descrie. Fiecare clasă nouă
+merge în pachetul stratului ei.
 
 ## CORS
-`config/CorsConfig` acceptă orice origine (`allowedOriginPatterns("*")`), inclusiv
-`Origin: null` trimis de un `index.html` deschis prin dublu-click. Este o setare
-**doar pentru dezvoltare locală**; în anul 2 o vom restrânge.
+`config/CorsConfig` + `config/SecurityConfig` acceptă orice origine (inclusiv
+`Origin: null` de la un `index.html` deschis local). Setare **doar pentru local**.
