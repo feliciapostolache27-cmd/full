@@ -1,4 +1,4 @@
 /**
- * Entitatile JPA — clase care corespund tabelelor din baza de date. Fara logica. Adaugate din Lectia 2.
+ * Entitatile JPA — clase care corespund tabelelor din baza de date. Fara logica.
  */
 package md.impact.ecommerce.entities;
