@@ -18,10 +18,12 @@ public class ProductService {
         this.productRepository = productRepository;
     }
 
-    public List<ProductResponse> list() {
-        return productRepository.findAllByOrderByIdAsc().stream()
-                .map(ProductResponse::from)
-                .toList();
+    /** Toate produsele, sau doar cele dintr-o categorie dacă {@code categoryId} nu e null. */
+    public List<ProductResponse> list(Long categoryId) {
+        var products = (categoryId == null)
+                ? productRepository.findAllByOrderByIdAsc()
+                : productRepository.findByCategoryIdOrderByIdAsc(categoryId);
+        return products.stream().map(ProductResponse::from).toList();
     }
 
     public ProductResponse get(Long id) {

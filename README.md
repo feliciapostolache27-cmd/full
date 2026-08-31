@@ -14,11 +14,13 @@ Backend de referință Spring Boot pentru Anul 2. Crește lecție cu lecție.
 ## Lecția 2 — PostgreSQL + entități + JWT
 | Metodă & rută | Acces | Descriere |
 |---|---|---|
-| `GET /api/products`        | public | lista de produse din baza de date |
-| `GET /api/products/{id}`   | public | un produs (404 dacă nu există) |
-| `POST /api/auth/register`  | public | creează un cont, întoarce un JWT |
-| `POST /api/auth/login`     | public | autentificare, întoarce un JWT |
-| `GET /api/auth/me`         | **token** | utilizatorul curent |
+| `GET /api/products`             | public | toate produsele din baza de date |
+| `GET /api/products?category={id}` | public | doar produsele dintr-o categorie |
+| `GET /api/products/{id}`        | public | un produs (404 dacă nu există) |
+| `GET /api/categories`           | public | lista de categorii |
+| `POST /api/auth/register`       | public | creează un cont, întoarce un JWT |
+| `POST /api/auth/login`          | public | autentificare, întoarce un JWT |
+| `GET /api/auth/me`              | **token** | utilizatorul curent |
 
 Erorile vin ca JSON: `{ "status": 404, "message": "..." }`.
 
@@ -63,8 +65,8 @@ nu ating datele voastre reale.
 src/main/java/md/impact/ecommerce/
   EcommerceApplication.java
 
-  controllers/   PracticeController, ProductController, AuthController
-  services/      ProductService, AuthService
+  controllers/   PracticeController, ProductController, CategoryController, AuthController
+  services/      ProductService, CategoryService, AuthService
   repositories/  ProductRepository, CategoryRepository, UserRepository
   entities/      Product, Category, User, Role
   dtos/          ProductResponse, RegisterRequest, LoginRequest, AuthResponse

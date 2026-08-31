@@ -57,6 +57,23 @@ class ApiIntegrationTest {
            .andExpect(jsonPath("$.message").exists());
     }
 
+    @Test
+    void categories_are_public() throws Exception {
+        mvc.perform(get("/api/categories"))
+           .andExpect(status().isOk())
+           .andExpect(jsonPath("$", hasSize(2)))
+           .andExpect(jsonPath("$[0].name").value("Test Cat A"));
+    }
+
+    @Test
+    void products_can_be_filtered_by_category() throws Exception {
+        mvc.perform(get("/api/products").param("category", "2"))
+           .andExpect(status().isOk())
+           .andExpect(jsonPath("$", hasSize(1)))
+           .andExpect(jsonPath("$[0].name").value("Test Product 2"))
+           .andExpect(jsonPath("$[0].category").value("Test Cat B"));
+    }
+
     // -------- Lecția 2: înregistrare + autentificare JWT --------
 
     @Test
