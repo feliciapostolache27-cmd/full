@@ -1,0 +1,21 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;MODE=PostgreSQL;DB_CLOSE_DELAY=-1
+    username: sa
+    password: ""
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    defer-datasource-initialization: true
+  sql:
+    init:
+      mode: always
+
+app:
+  jwt:
+    secret: test-secret-key-only-for-unit-tests-please-0123456789-abcdefghij
+    expiration-minutes: 60
+
+logging:
+  level:
+    md.impact.ecommerce: WARN
