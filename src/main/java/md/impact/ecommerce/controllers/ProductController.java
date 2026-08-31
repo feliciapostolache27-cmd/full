@@ -5,6 +5,7 @@ import md.impact.ecommerce.services.ProductService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -20,9 +21,13 @@ public class ProductController {
         this.productService = productService;
     }
 
+    /**
+     * GET /api/products               -> toate produsele
+     * GET /api/products?category=2     -> doar produsele din categoria 2
+     */
     @GetMapping
-    public List<ProductResponse> list() {
-        return productService.list();
+    public List<ProductResponse> list(@RequestParam(name = "category", required = false) Long categoryId) {
+        return productService.list(categoryId);
     }
 
     @GetMapping("/{id}")
