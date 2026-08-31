@@ -5,6 +5,23 @@ spring:
   application:
     name: ecommerce-backend
 
+  datasource:
+    url: jdbc:postgresql://localhost:5432/e-commerce
+    username: postgres
+    password: 2302
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    open-in-view: false
+    properties:
+      hibernate.format_sql: true
+
+app:
+  jwt:
+    secret: ${APP_JWT_SECRET:impact-academies-dev-secret-key-do-not-use-in-production-0123456789}
+    expiration-minutes: 120
+
 logging:
   level:
     md.impact.ecommerce: INFO
