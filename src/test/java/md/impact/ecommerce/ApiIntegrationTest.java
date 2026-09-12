@@ -6,9 +6,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.interceptor.SimpleKey;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -22,6 +27,9 @@ class ApiIntegrationTest {
 
     @Autowired
     ObjectMapper json;
+
+    @Autowired
+    CacheManager cacheManager;
 
     // -------- Lecția 1: ruta de practică rămâne publică --------
 
@@ -109,5 +117,43 @@ class ApiIntegrationTest {
     void protected_route_without_token_is_401() throws Exception {
         mvc.perform(get("/api/auth/me"))
            .andExpect(status().isUnauthorized());
+    }
+
+    // -------- Lecția 3: cache Redis pe produse și categorii --------
+
+    @Test
+    void product_list_is_cached_until_explicitly_cleared() throws Exception {
+        Cache products = cacheManager.getCache("products");
+        products.clear();
+
+        mvc.perform(get("/api/products")).andExpect(status().isOk());
+        assertThat(products.get("all")).isNotNull();
+
+        mvc.perform(post("/api/cache/clear")).andExpect(status().isOk());
+        assertThat(products.get("all")).isNull();
+    }
+
+    @Test
+    void category_list_is_cached() throws Exception {
+        Cache categories = cacheManager.getCache("categories");
+        categories.clear();
+
+        mvc.perform(get("/api/categories")).andExpect(status().isOk());
+        assertThat(categories.get(SimpleKey.EMPTY)).isNotNull();
+    }
+
+    // -------- Lecția 3: documentație OpenAPI / Swagger --------
+
+    @Test
+    void openapi_docs_are_public_and_list_the_routes() throws Exception {
+        mvc.perform(get("/v3/api-docs"))
+           .andExpect(status().isOk())
+           .andExpect(content().string(containsString("\"/api/products\"")));
+    }
+
+    @Test
+    void swagger_ui_is_public() throws Exception {
+        mvc.perform(get("/swagger-ui.html"))
+           .andExpect(status().is3xxRedirection());
     }
 }
