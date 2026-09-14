@@ -17,10 +17,24 @@ spring:
     properties:
       hibernate.format_sql: true
 
+  # Lecția 3 — cache Redis. Memurai (pe Windows) sau Redis, pe portul 6379.
+  cache:
+    type: redis
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
 app:
   jwt:
     secret: ${APP_JWT_SECRET:impact-academies-dev-secret-key-do-not-use-in-production-0123456789}
     expiration-minutes: 120
+
+# Lecția 3 — Swagger UI la /swagger-ui/index.html
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
 
 logging:
   level:

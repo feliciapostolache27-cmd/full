@@ -1,5 +1,6 @@
 package md.impact.ecommerce.controllers;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(path = "/api/practice", produces = MediaType.TEXT_PLAIN_VALUE)
+@Tag(name = "Practică (Lecția 1)", description = "Ruta de exercițiu pentru cele 5 verbe HTTP")
 public class PracticeController {
 
     @GetMapping

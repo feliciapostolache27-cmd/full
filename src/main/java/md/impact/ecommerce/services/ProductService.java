@@ -3,6 +3,7 @@ package md.impact.ecommerce.services;
 import md.impact.ecommerce.dtos.ProductResponse;
 import md.impact.ecommerce.exceptions.ApiException;
 import md.impact.ecommerce.repositories.ProductRepository;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,7 +19,14 @@ public class ProductService {
         this.productRepository = productRepository;
     }
 
-    /** Toate produsele, sau doar cele dintr-o categorie dacă {@code categoryId} nu e null. */
+    /**
+     * Toate produsele, sau doar cele dintr-o categorie dacă {@code categoryId} nu e null.
+     *
+     * Rezultatul este pus în cache-ul Redis "products" (Lecția 3): prima cerere
+     * lovește baza de date, următoarele sunt servite din Redis până expiră TTL-ul.
+     * Cheia din cache este id-ul categoriei, sau "all".
+     */
+    @Cacheable(cacheNames = "products", key = "#categoryId != null ? #categoryId : 'all'")
     public List<ProductResponse> list(Long categoryId) {
         var products = (categoryId == null)
                 ? productRepository.findAllByOrderByIdAsc()

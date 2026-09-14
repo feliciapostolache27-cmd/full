@@ -2,6 +2,7 @@ package md.impact.ecommerce.services;
 
 import md.impact.ecommerce.dtos.CategoryResponse;
 import md.impact.ecommerce.repositories.CategoryRepository;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +19,7 @@ public class CategoryService {
         this.categoryRepository = categoryRepository;
     }
 
+    @Cacheable("categories")
     public List<CategoryResponse> list() {
         return categoryRepository.findAll(Sort.by("name")).stream()
                 .map(CategoryResponse::from)
