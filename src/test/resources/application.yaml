@@ -1,4 +1,6 @@
 spring:
+  application:
+    name: ecommerce-backend
   datasource:
     url: jdbc:h2:mem:testdb;MODE=PostgreSQL;DB_CLOSE_DELAY=-1
     username: sa
@@ -21,6 +23,8 @@ app:
   discount:
     category-name: Test Cat B
     percentage: 10
+  cors:
+    allowed-origins: "*"
 
 logging:
   level:
