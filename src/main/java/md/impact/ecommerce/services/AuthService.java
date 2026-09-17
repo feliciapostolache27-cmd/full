@@ -2,6 +2,7 @@ package md.impact.ecommerce.services;
 
 import md.impact.ecommerce.dtos.AuthResponse;
 import md.impact.ecommerce.dtos.LoginRequest;
+import md.impact.ecommerce.dtos.MeResponse;
 import md.impact.ecommerce.dtos.RegisterRequest;
 import md.impact.ecommerce.entities.Role;
 import md.impact.ecommerce.entities.User;
@@ -43,6 +44,13 @@ public class AuthService {
             throw ApiException.unauthorized("Email sau parolă incorecte");
         }
         return toResponse(user);
+    }
+
+    @Transactional(readOnly = true)
+    public MeResponse me(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> ApiException.unauthorized("Email sau parolă incorecte"));
+        return new MeResponse(user.getEmail(), user.getRole().name());
     }
 
     private AuthResponse toResponse(User user) {
