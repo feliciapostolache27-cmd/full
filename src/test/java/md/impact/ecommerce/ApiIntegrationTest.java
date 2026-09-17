@@ -156,4 +156,24 @@ class ApiIntegrationTest {
         mvc.perform(get("/swagger-ui.html"))
            .andExpect(status().is3xxRedirection());
     }
+
+    // -------- Lecția 5: Strategy pattern — discount pe categorie --------
+
+    @Test
+    void product_in_discounted_category_gets_reduced_final_price() throws Exception {
+        // Test Product 2, 20.50, categoria "Test Cat B" — 10% discount configurat în test.
+        mvc.perform(get("/api/products/2"))
+           .andExpect(status().isOk())
+           .andExpect(jsonPath("$.price").value(20.50))
+           .andExpect(jsonPath("$.finalPrice").value(18.45));
+    }
+
+    @Test
+    void product_outside_discounted_category_keeps_same_final_price() throws Exception {
+        // Test Product 1, 10.00, categoria "Test Cat A" — nicio strategie de discount nu se aplică.
+        mvc.perform(get("/api/products/1"))
+           .andExpect(status().isOk())
+           .andExpect(jsonPath("$.price").value(10.00))
+           .andExpect(jsonPath("$.finalPrice").value(10.00));
+    }
 }

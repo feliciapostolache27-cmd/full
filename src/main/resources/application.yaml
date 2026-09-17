@@ -29,6 +29,11 @@ app:
   jwt:
     secret: ${APP_JWT_SECRET:impact-academies-dev-secret-key-do-not-use-in-production-0123456789}
     expiration-minutes: 120
+  # Lecția 5 — Strategy pattern: ce categorie e la reducere și cu cât. Schimbă
+  # promoția modificând valorile astea, nu codul (vezi CategoryPercentageDiscountStrategy).
+  discount:
+    category-name: Accesorii
+    percentage: 15
 
 # Lecția 3 — Swagger UI la /swagger-ui/index.html
 springdoc:

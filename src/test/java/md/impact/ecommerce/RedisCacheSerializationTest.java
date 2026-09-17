@@ -31,7 +31,7 @@ class RedisCacheSerializationTest {
     void product_list_round_trips_through_redis_serialization() {
         var serializer = listSerializer(ProductResponse.class);
         List<ProductResponse> value = List.of(
-                new ProductResponse(1L, "Tricou", "desc", new BigDecimal("199.00"), 5, "Îmbrăcăminte"));
+                new ProductResponse(1L, "Tricou", "desc", new BigDecimal("199.00"), new BigDecimal("199.00"), 5, "Îmbrăcăminte"));
 
         byte[] bytes = serializer.serialize(value);
         assertThat(serializer.deserialize(bytes)).isEqualTo(value);
