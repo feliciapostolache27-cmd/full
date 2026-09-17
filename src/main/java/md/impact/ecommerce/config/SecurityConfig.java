@@ -16,7 +16,8 @@ import org.springframework.web.cors.CorsConfigurationSource;
 
 /**
  * Regulile de securitate ale API-ului.
- * Rute publice: /api/auth/**, GET /api/products/**, /api/practice/** (Lecția 1).
+ * Rute publice: /api/auth/**, GET /api/products/**, /api/practice/** (Lecția 1),
+ * /api/config/** (Lecția 6 — informativ, fără date sensibile).
  * Orice altceva cere un token JWT valid.
  */
 @Configuration
@@ -42,7 +43,7 @@ public class SecurityConfig {
             .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
-                .requestMatchers("/api/practice/**", "/api/cache/**").permitAll()
+                .requestMatchers("/api/practice/**", "/api/cache/**", "/api/config/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/products/**", "/api/categories/**").permitAll()
                 // Lecția 3: documentația Swagger este publică (doar local)
                 .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
