@@ -1,0 +1,31 @@
+# Lecția 6 — profil PROD: fără NICIO valoare implicită pentru date sensibile.
+# Dacă o variabilă de mediu lipsește, Spring refuză să pornească aplicația
+# ("Could not resolve placeholder ...") în loc să pornească tăcut cu o valoare
+# greșită. Asta e "fail fast" — o config lipsă trebuie să fie o eroare vizibilă
+# la pornire, nu un bug descoperit mai târziu în producție.
+
+server:
+  port: ${PORT:8080}
+
+spring:
+  datasource:
+    url: ${APP_DB_URL}
+    username: ${APP_DB_USERNAME}
+    password: ${APP_DB_PASSWORD}
+
+  cache:
+    type: redis
+  data:
+    redis:
+      host: ${APP_REDIS_HOST}
+      port: ${APP_REDIS_PORT:6379}
+
+app:
+  jwt:
+    secret: ${APP_JWT_SECRET}
+  cors:
+    allowed-origins: ${APP_CORS_ALLOWED_ORIGINS}
+
+logging:
+  level:
+    md.impact.ecommerce: WARN
