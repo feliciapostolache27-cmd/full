@@ -176,4 +176,13 @@ class ApiIntegrationTest {
            .andExpect(jsonPath("$.price").value(10.00))
            .andExpect(jsonPath("$.finalPrice").value(10.00));
     }
+
+    // -------- Lecția 6: 12-Factor App — config externalizat pe profil --------
+
+    @Test
+    void config_info_is_public_and_reports_app_name() throws Exception {
+        mvc.perform(get("/api/config/info"))
+           .andExpect(status().isOk())
+           .andExpect(jsonPath("$.appName").value("ecommerce-backend"));
+    }
 }
