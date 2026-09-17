@@ -1,0 +1,30 @@
+# Lecția 6 — profil DEV: valori implicite care funcționează din prima, pe orice
+# laptop, fără nicio variabilă de mediu setată. Comod pentru cursanți; niciodată
+# folosit ca atare în producție (secretul JWT de mai jos e evident un placeholder).
+
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/e-commerce
+    username: postgres
+    password: ${APP_DB_PASSWORD:2302}
+
+  # Memurai (pe Windows) sau Redis, pe portul 6379 (Lecția 3).
+  cache:
+    type: redis
+  data:
+    redis:
+      host: ${APP_REDIS_HOST:localhost}
+      port: ${APP_REDIS_PORT:6379}
+
+app:
+  jwt:
+    secret: ${APP_JWT_SECRET:impact-academies-dev-secret-key-do-not-use-in-production-0123456789}
+  cors:
+    allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:*}
+
+logging:
+  level:
+    md.impact.ecommerce: DEBUG
