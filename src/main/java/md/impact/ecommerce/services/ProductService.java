@@ -14,9 +14,11 @@ import java.util.List;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final DiscountService discountService;
 
-    public ProductService(ProductRepository productRepository) {
+    public ProductService(ProductRepository productRepository, DiscountService discountService) {
         this.productRepository = productRepository;
+        this.discountService = discountService;
     }
 
     /**
@@ -31,12 +33,14 @@ public class ProductService {
         var products = (categoryId == null)
                 ? productRepository.findAllByOrderByIdAsc()
                 : productRepository.findByCategoryIdOrderByIdAsc(categoryId);
-        return products.stream().map(ProductResponse::from).toList();
+        return products.stream()
+                .map(p -> ProductResponse.from(p, discountService.finalPriceFor(p)))
+                .toList();
     }
 
     public ProductResponse get(Long id) {
         return productRepository.findById(id)
-                .map(ProductResponse::from)
+                .map(p -> ProductResponse.from(p, discountService.finalPriceFor(p)))
                 .orElseThrow(() -> ApiException.notFound("Produsul " + id + " nu există"));
     }
 }
