@@ -2,6 +2,7 @@ package md.impact.ecommerce.controllers;
 
 import md.impact.ecommerce.dtos.AuthResponse;
 import md.impact.ecommerce.dtos.LoginRequest;
+import md.impact.ecommerce.dtos.MeResponse;
 import md.impact.ecommerce.dtos.RegisterRequest;
 import md.impact.ecommerce.services.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -9,8 +10,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
 
 /** Înregistrare, autentificare și „cine sunt eu". */
 @RestController
@@ -38,9 +37,7 @@ public class AuthController {
 
     @Operation(summary = "Utilizatorul curent (necesită token)")
     @GetMapping("/me")
-    public Map<String, Object> me(Authentication authentication) {
-        return Map.of(
-                "email", authentication.getName(),
-                "roles", authentication.getAuthorities());
+    public MeResponse me(Authentication authentication) {
+        return authService.me(authentication.getName());
     }
 }
