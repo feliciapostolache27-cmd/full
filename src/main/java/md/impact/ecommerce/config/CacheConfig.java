@@ -1,10 +1,8 @@
 package md.impact.ecommerce.config;
 
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.type.TypeFactory;
-import md.impact.ecommerce.dtos.CategoryResponse;
-import md.impact.ecommerce.dtos.ProductResponse;
+import java.time.Duration;
+import java.util.List;
+
 import org.springframework.boot.autoconfigure.cache.RedisCacheManagerBuilderCustomizer;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -13,23 +11,13 @@ import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 
-import java.time.Duration;
-import java.util.List;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 
-/**
- * Configurarea cache-ului Redis (Lecția 3).
- *
- * TTL implicit = 60 de secunde: după un minut, cheia expiră singură și
- * următoarea cerere reîncarcă din baza de date.
- * (Activ doar când spring.cache.type=redis — în teste folosim un cache simplu.)
- *
- * Fiecare cache primește un serializator Jackson legat de tipul lui exact
- * (List<ProductResponse>, List<CategoryResponse>) în loc de unul generic:
- * un serializator "pentru orice tip" trebuie să scrie informația de tip în
- * JSON ca să știe ce reconstruiește, iar pentru un List simplu (care e deja
- * un array JSON) acea informație de tip devine ambiguă la citire. Cunoscând
- * tipul dinainte, nu mai avem nevoie deloc de informația de tip.
- */
+import md.impact.ecommerce.dtos.CategoryResponse;
+import md.impact.ecommerce.dtos.ProductResponse;
+
 @Configuration
 @ConditionalOnProperty(name = "spring.cache.type", havingValue = "redis")
 public class CacheConfig {

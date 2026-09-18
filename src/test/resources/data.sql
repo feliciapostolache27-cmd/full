@@ -1,4 +1,3 @@
--- Date de test (H2). Schema este creata de Hibernate din entitati.
 INSERT INTO categories (name) VALUES ('Test Cat A'), ('Test Cat B');
 
 INSERT INTO products (name, description, price, stock, category_id, created_at) VALUES

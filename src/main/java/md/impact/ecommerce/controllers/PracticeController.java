@@ -1,6 +1,5 @@
 package md.impact.ecommerce.controllers;
 
-import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,6 +9,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping(path = "/api/practice", produces = MediaType.TEXT_PLAIN_VALUE)
@@ -41,7 +42,6 @@ public class PracticeController {
         return "youve deleted : " + payload(body);
     }
 
-    // Daca nu s-a trimis niciun corp, intoarcem {} ca marcaj vizibil.
     private String payload(String body) {
         return (body == null || body.isBlank()) ? "{}" : body.trim();
     }

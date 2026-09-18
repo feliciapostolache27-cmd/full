@@ -1,7 +1,5 @@
 package md.impact.ecommerce.config;
 
-import jakarta.servlet.http.HttpServletResponse;
-import md.impact.ecommerce.security.JwtAuthFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -14,12 +12,9 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfigurationSource;
 
-/**
- * Regulile de securitate ale API-ului.
- * Rute publice: /api/auth/**, GET /api/products/**, /api/practice/** (Lecția 1),
- * /api/config/** (Lecția 6 — informativ, fără date sensibile).
- * Orice altceva cere un token JWT valid.
- */
+import jakarta.servlet.http.HttpServletResponse;
+import md.impact.ecommerce.security.JwtAuthFilter;
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -37,15 +32,12 @@ public class SecurityConfig {
         http
             .cors(cors -> cors.configurationSource(corsConfigurationSource))
             .csrf(csrf -> csrf.disable())
-            // Lecția 3: Swagger UI e afișat într-un iframe din frontend (alt origin) —
-            // fără asta, browserul refuză să-l afișeze din cauza X-Frame-Options. Doar local.
             .headers(headers -> headers.frameOptions(frame -> frame.disable()))
             .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
                 .requestMatchers("/api/practice/**", "/api/cache/**", "/api/config/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/products/**", "/api/categories/**").permitAll()
-                // Lecția 3: documentația Swagger este publică (doar local)
                 .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .anyRequest().authenticated())

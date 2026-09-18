@@ -1,15 +1,7 @@
-# Lecția 6 — 12-Factor App: config-ul comun, valabil în orice mediu.
-# Tot ce diferă între dev și prod (bază de date, Redis, secrete, CORS) trăiește
-# în application-dev.yaml / application-prod.yaml, nu aici. Vezi Factorul III
-# ("Config") — config-ul se ține separat de cod, în mediu, nu hardcodat.
-
 spring:
   application:
     name: ecommerce-backend
 
-  # Profilul activ vine din variabila de mediu SPRING_PROFILES_ACTIVE.
-  # Fără ea, aplicația pornește implicit pe "dev" — parametrii de prod nu au
-  # valori implicite, deci nu poți porni accidental pe date de producție.
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:dev}
 
@@ -23,14 +15,10 @@ spring:
 app:
   jwt:
     expiration-minutes: 120
-  # Lecția 5 — Strategy pattern: ce categorie e la reducere și cu cât. Schimbă
-  # promoția modificând valorile astea, nu codul (vezi CategoryPercentageDiscountStrategy).
-  # Nu diferă pe profil, deci rămâne în config-ul comun.
   discount:
     category-name: Accesorii
     percentage: 15
-
-# Swagger UI la /swagger-ui/index.html (Lecția 3)
+    
 springdoc:
   swagger-ui:
     path: /swagger-ui.html

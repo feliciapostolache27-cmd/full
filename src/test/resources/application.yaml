@@ -12,7 +12,6 @@ spring:
   sql:
     init:
       mode: always
-  # Testele NU folosesc Redis — un cache simplu in-memory (@Cacheable tot funcționează).
   cache:
     type: simple
 
