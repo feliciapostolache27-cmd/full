@@ -1,7 +1,8 @@
 package md.impact.ecommerce;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasSize;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -11,12 +12,14 @@ import org.springframework.cache.CacheManager;
 import org.springframework.cache.interceptor.SimpleKey;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.hasSize;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -31,7 +34,6 @@ class ApiIntegrationTest {
     @Autowired
     CacheManager cacheManager;
 
-    // -------- Lecția 1: ruta de practică rămâne publică --------
 
     @Test
     void practice_get_still_works() throws Exception {
@@ -46,8 +48,6 @@ class ApiIntegrationTest {
            .andExpect(status().isOk())
            .andExpect(content().string("youve posted: {\"a\":1}"));
     }
-
-    // -------- Lecția 2: produse din baza de date --------
 
     @Test
     void products_are_public_and_come_from_db() throws Exception {
@@ -81,8 +81,6 @@ class ApiIntegrationTest {
            .andExpect(jsonPath("$[0].name").value("Test Product 2"))
            .andExpect(jsonPath("$[0].category").value("Test Cat B"));
     }
-
-    // -------- Lecția 2: înregistrare + autentificare JWT --------
 
     @Test
     void register_then_login_returns_token_and_me_works() throws Exception {
@@ -119,8 +117,6 @@ class ApiIntegrationTest {
            .andExpect(status().isUnauthorized());
     }
 
-    // -------- Lecția 3: cache Redis pe produse și categorii --------
-
     @Test
     void product_list_is_cached_until_explicitly_cleared() throws Exception {
         Cache products = cacheManager.getCache("products");
@@ -142,8 +138,6 @@ class ApiIntegrationTest {
         assertThat(categories.get(SimpleKey.EMPTY)).isNotNull();
     }
 
-    // -------- Lecția 3: documentație OpenAPI / Swagger --------
-
     @Test
     void openapi_docs_are_public_and_list_the_routes() throws Exception {
         mvc.perform(get("/v3/api-docs"))
@@ -157,11 +151,8 @@ class ApiIntegrationTest {
            .andExpect(status().is3xxRedirection());
     }
 
-    // -------- Lecția 5: Strategy pattern — discount pe categorie --------
-
     @Test
     void product_in_discounted_category_gets_reduced_final_price() throws Exception {
-        // Test Product 2, 20.50, categoria "Test Cat B" — 10% discount configurat în test.
         mvc.perform(get("/api/products/2"))
            .andExpect(status().isOk())
            .andExpect(jsonPath("$.price").value(20.50))
@@ -170,14 +161,11 @@ class ApiIntegrationTest {
 
     @Test
     void product_outside_discounted_category_keeps_same_final_price() throws Exception {
-        // Test Product 1, 10.00, categoria "Test Cat A" — nicio strategie de discount nu se aplică.
         mvc.perform(get("/api/products/1"))
            .andExpect(status().isOk())
            .andExpect(jsonPath("$.price").value(10.00))
            .andExpect(jsonPath("$.finalPrice").value(10.00));
     }
-
-    // -------- Lecția 6: 12-Factor App — config externalizat pe profil --------
 
     @Test
     void config_info_is_public_and_reports_app_name() throws Exception {

@@ -2,7 +2,6 @@ package md.impact.ecommerce.exceptions;
 
 import org.springframework.http.HttpStatus;
 
-/** Excepție proprie a aplicației, cu un cod HTTP explicit. */
 public class ApiException extends RuntimeException {
 
     private final HttpStatus status;

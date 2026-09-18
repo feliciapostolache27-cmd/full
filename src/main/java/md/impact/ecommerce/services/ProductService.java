@@ -1,13 +1,14 @@
 package md.impact.ecommerce.services;
 
-import md.impact.ecommerce.dtos.ProductResponse;
-import md.impact.ecommerce.exceptions.ApiException;
-import md.impact.ecommerce.repositories.ProductRepository;
+import java.util.List;
+
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import md.impact.ecommerce.dtos.ProductResponse;
+import md.impact.ecommerce.exceptions.ApiException;
+import md.impact.ecommerce.repositories.ProductRepository;
 
 @Service
 @Transactional(readOnly = true)
@@ -21,13 +22,6 @@ public class ProductService {
         this.discountService = discountService;
     }
 
-    /**
-     * Toate produsele, sau doar cele dintr-o categorie dacă {@code categoryId} nu e null.
-     *
-     * Rezultatul este pus în cache-ul Redis "products" (Lecția 3): prima cerere
-     * lovește baza de date, următoarele sunt servite din Redis până expiră TTL-ul.
-     * Cheia din cache este id-ul categoriei, sau "all".
-     */
     @Cacheable(cacheNames = "products", key = "#categoryId != null ? #categoryId : 'all'")
     public List<ProductResponse> list(Long categoryId) {
         var products = (categoryId == null)
