@@ -61,6 +61,22 @@ Conturi din `insert_data.sql`: `admin@impact.md` / `admin123` (ADMIN), `user@imp
 Testele folosesc o bază de date **H2 în memorie** (nu PostgreSQL) — rulează oriunde și
 nu ating datele voastre reale.
 
+### Lecția 8 — teste unitare (JUnit + Mockito)
+Până la Lecția 8, toate testele erau `@SpringBootTest` — pornesc contextul Spring întreg
+și ating o bază H2 reală. Utile, dar lente și greu de izolat. `src/test/java/.../services/`
+adaugă teste **unitare**: niciun context Spring, nicio bază de date — doar dependențele
+serviciului mock-uite cu Mockito (`@Mock`, `@InjectMocks`-style manual, `verify`,
+`ArgumentCaptor`).
+- `AuthServiceTest` — register/login/me, izolat de `UserRepository`/`PasswordEncoder`/`JwtService`.
+- `ProductServiceTest` — verifică ce query alege `list()` (`findAllByOrderByIdAsc` vs.
+  `findByCategoryIdOrderByIdAsc`) și că `finalPrice` vine din `DiscountService`.
+- `DiscountServiceTest` — testează regula de selecție a Strategy pattern-ului din
+  Lecția 5 ("prima strategie care se potrivește câștigă") cu `DiscountStrategy` mock-uite
+  direct, independent de strategiile reale din proiect.
+
+`Product`/`Category` nu au constructor public (doar Hibernate le construiește) — de asta
+sunt și ele mock-uite cu Mockito (`@Mock Product product`) în loc de `new Product(...)`.
+
 ## Structura pachetelor (layout standard pe straturi)
 ```
 src/main/java/md/impact/ecommerce/
