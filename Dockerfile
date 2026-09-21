@@ -1,5 +1,3 @@
-# Lecția 7 — imagine multi-stage.
-#
 # Stage 1 ("build") are Maven + JDK-ul complet și compilează jar-ul. Stage 2 pornește
 # dintr-o imagine mult mai mică, doar cu un JRE (fără compilator, fără Maven, fără
 # codul sursă), și copiază DOAR jar-ul rezultat din stage 1. Rezultatul: imaginea
