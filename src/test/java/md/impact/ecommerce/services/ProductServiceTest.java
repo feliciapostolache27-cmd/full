@@ -1,35 +1,30 @@
 package md.impact.ecommerce.services;
 
-import md.impact.ecommerce.dtos.ProductResponse;
-import md.impact.ecommerce.entities.Category;
-import md.impact.ecommerce.entities.Product;
-import md.impact.ecommerce.exceptions.ApiException;
-import md.impact.ecommerce.repositories.ProductRepository;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
-
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import static org.mockito.ArgumentMatchers.any;
+import org.mockito.Mock;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 
-/**
- * Lecția 8 — ProductService are ZERO metode publice care nu ating fie
- * ProductRepository, fie DiscountService — perfect pentru un test unitar: le
- * mock-uim pe amândouă, nu pornim Spring, nu atingem PostgreSQL.
- *
- * Product/Category nu au constructor public (doar Hibernate le construiește,
- * via constructorul protejat) — de asta le mock-uim și pe ELE cu Mockito
- * (@Mock funcționează pe orice clasă non-finală, indiferent de constructor)
- * în loc să încercăm `new Product(...)`.
- */
+import md.impact.ecommerce.dtos.ProductResponse;
+import md.impact.ecommerce.entities.Category;
+import md.impact.ecommerce.entities.Product;
+import md.impact.ecommerce.exceptions.ApiException;
+import md.impact.ecommerce.repositories.ProductRepository;
+
 @ExtendWith(MockitoExtension.class)
 class ProductServiceTest {
 
