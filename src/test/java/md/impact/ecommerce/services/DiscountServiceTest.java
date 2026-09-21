@@ -1,27 +1,25 @@
 package md.impact.ecommerce.services;
 
-import md.impact.ecommerce.entities.Category;
-import md.impact.ecommerce.entities.Product;
-import md.impact.ecommerce.pricing.DiscountStrategy;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
 import java.math.BigDecimal;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import org.mockito.Mock;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-/**
- * Lecția 8 — testăm mecanismul de selecție al Strategy pattern-ului din
- * Lecția 5 (DiscountService), separat de orice strategie concretă: injectăm
- * DiscountStrategy MOCK-uite direct, ca listă construită de mână — nu cele
- * reale (@Order-uite de Spring). Așa testăm exact regula "prima care se
- * potrivește câștigă", independent de câte strategii reale există în proiect.
- */
+import md.impact.ecommerce.entities.Category;
+import md.impact.ecommerce.entities.Product;
+import md.impact.ecommerce.pricing.DiscountStrategy;
+
 @ExtendWith(MockitoExtension.class)
 class DiscountServiceTest {
 

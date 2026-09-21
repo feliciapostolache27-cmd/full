@@ -1,12 +1,3 @@
-# Lecția 7 — checkpoint de proiect: `docker compose up` pornește toată aplicația
-# (backend + PostgreSQL + Redis), fără nimic instalat pe laptop în afară de Docker.
-#
-# Backend-ul nu are NIMIC hardcodat despre "docker" — rulează exact același jar,
-# cu exact aceleași profiluri Spring dev/prod din Lecția 6. Compose doar setează
-# variabilele de mediu pe care Lecția 6 le-a făcut deja externalizabile
-# (APP_DB_HOST, APP_REDIS_HOST, ...), ca să indice spre serviciile vecine în loc
-# de "localhost".
-
 services:
   postgres:
     image: postgres:16-alpine
