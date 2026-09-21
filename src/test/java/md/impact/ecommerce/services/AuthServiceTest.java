@@ -1,5 +1,24 @@
 package md.impact.ecommerce.services;
 
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import org.mockito.Mock;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 import md.impact.ecommerce.dtos.AuthResponse;
 import md.impact.ecommerce.dtos.LoginRequest;
 import md.impact.ecommerce.dtos.MeResponse;
@@ -9,29 +28,7 @@ import md.impact.ecommerce.entities.User;
 import md.impact.ecommerce.exceptions.ApiException;
 import md.impact.ecommerce.repositories.UserRepository;
 import md.impact.ecommerce.security.JwtService;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
-
-/**
- * Lecția 8 — teste unitare "adevărate": spre deosebire de ApiIntegrationTest
- * (@SpringBootTest, context Spring real, bază de date H2), aici NU pornim
- * niciun context Spring și NU atingem nicio bază de date — doar mock-uim
- * dependențele lui AuthService (UserRepository, PasswordEncoder, JwtService)
- * cu Mockito și verificăm logica serviciului izolat. Rulează în milisecunde.
- */
 @ExtendWith(MockitoExtension.class)
 class AuthServiceTest {
 
