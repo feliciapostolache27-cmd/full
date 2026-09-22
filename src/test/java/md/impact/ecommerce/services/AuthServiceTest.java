@@ -1,5 +1,6 @@
 package md.impact.ecommerce.services;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -22,10 +23,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import md.impact.ecommerce.dtos.AuthResponse;
 import md.impact.ecommerce.dtos.LoginRequest;
 import md.impact.ecommerce.dtos.MeResponse;
+import md.impact.ecommerce.dtos.RefreshRequest;
 import md.impact.ecommerce.dtos.RegisterRequest;
+import md.impact.ecommerce.entities.RefreshToken;
 import md.impact.ecommerce.entities.Role;
 import md.impact.ecommerce.entities.User;
 import md.impact.ecommerce.exceptions.ApiException;
+import md.impact.ecommerce.repositories.RefreshTokenRepository;
 import md.impact.ecommerce.repositories.UserRepository;
 import md.impact.ecommerce.security.JwtService;
 
@@ -33,6 +37,7 @@ import md.impact.ecommerce.security.JwtService;
 class AuthServiceTest {
 
     @Mock UserRepository userRepository;
+    @Mock RefreshTokenRepository refreshTokenRepository;
     @Mock PasswordEncoder passwordEncoder;
     @Mock JwtService jwtService;
 
@@ -40,7 +45,7 @@ class AuthServiceTest {
 
     @org.junit.jupiter.api.BeforeEach
     void setUp() {
-        authService = new AuthService(userRepository, passwordEncoder, jwtService);
+        authService = new AuthService(userRepository, refreshTokenRepository, passwordEncoder, jwtService, 30);
     }
 
     @Test
@@ -50,6 +55,7 @@ class AuthServiceTest {
         when(passwordEncoder.encode(req.password())).thenReturn("$2b$10$hash-fals-pentru-test");
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(jwtService.generate(any(User.class))).thenReturn("jwt-fals");
+        when(refreshTokenRepository.save(any(RefreshToken.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         AuthResponse response = authService.register(req);
 
@@ -63,6 +69,7 @@ class AuthServiceTest {
         assertThat(response.email()).isEqualTo("elev@impact.md");
         assertThat(response.role()).isEqualTo("USER");
         assertThat(response.token()).isEqualTo("jwt-fals");
+        assertThat(response.refreshToken()).isNotBlank();
     }
 
     @Test
@@ -81,7 +88,7 @@ class AuthServiceTest {
     }
 
     @Test
-    void login_with_correct_password_returns_a_token() {
+    void login_with_correct_password_returns_a_token_and_a_refresh_token() {
         var req = new LoginRequest("user@impact.md", "user123");
         User user = mock(User.class);
         when(user.getEmail()).thenReturn("user@impact.md");
@@ -90,11 +97,13 @@ class AuthServiceTest {
         when(userRepository.findByEmail(req.email())).thenReturn(Optional.of(user));
         when(passwordEncoder.matches(req.password(), "hash-stocat")).thenReturn(true);
         when(jwtService.generate(user)).thenReturn("jwt-fals");
+        when(refreshTokenRepository.save(any(RefreshToken.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         AuthResponse response = authService.login(req);
 
         assertThat(response.token()).isEqualTo("jwt-fals");
         assertThat(response.role()).isEqualTo("USER");
+        assertThat(response.refreshToken()).isNotBlank();
     }
 
     @Test
@@ -146,5 +155,84 @@ class AuthServiceTest {
                 .isInstanceOf(ApiException.class)
                 .extracting(e -> ((ApiException) e).getStatus())
                 .isEqualTo(HttpStatus.UNAUTHORIZED);
+    }
+
+    // --- Lecția 11 — refresh & logout ---------------------------------------
+
+    @Test
+    void refresh_with_a_valid_token_rotates_it_and_issues_a_new_access_token() {
+        User user = mock(User.class);
+        when(user.getRole()).thenReturn(Role.USER);
+        RefreshToken stored = new RefreshToken("old-token", user, LocalDateTime.now().plusDays(1));
+        when(refreshTokenRepository.findByToken("old-token")).thenReturn(Optional.of(stored));
+        when(jwtService.generate(user)).thenReturn("jwt-nou");
+        when(refreshTokenRepository.save(any(RefreshToken.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        AuthResponse response = authService.refresh(new RefreshRequest("old-token"));
+
+        assertThat(response.token()).isEqualTo("jwt-nou");
+        assertThat(response.refreshToken()).isNotEqualTo("old-token");
+        // Rotație: tokenul vechi trebuie revocat, nu doar înlocuit — altfel un
+        // atacator care l-a furat înainte de refresh tot l-ar putea reutiliza.
+        assertThat(stored.isRevoked()).isTrue();
+    }
+
+    @Test
+    void refresh_with_an_unknown_token_is_rejected() {
+        when(refreshTokenRepository.findByToken("nu-exista")).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> authService.refresh(new RefreshRequest("nu-exista")))
+                .isInstanceOf(ApiException.class)
+                .extracting(e -> ((ApiException) e).getStatus())
+                .isEqualTo(HttpStatus.UNAUTHORIZED);
+
+        verifyNoInteractions(jwtService);
+    }
+
+    @Test
+    void refresh_with_an_already_revoked_token_is_rejected() {
+        User user = mock(User.class);
+        RefreshToken revoked = new RefreshToken("folosit-deja", user, LocalDateTime.now().plusDays(1));
+        revoked.revoke();
+        when(refreshTokenRepository.findByToken("folosit-deja")).thenReturn(Optional.of(revoked));
+
+        assertThatThrownBy(() -> authService.refresh(new RefreshRequest("folosit-deja")))
+                .isInstanceOf(ApiException.class)
+                .extracting(e -> ((ApiException) e).getStatus())
+                .isEqualTo(HttpStatus.UNAUTHORIZED);
+
+        verifyNoInteractions(jwtService);
+    }
+
+    @Test
+    void refresh_with_an_expired_token_is_rejected() {
+        User user = mock(User.class);
+        RefreshToken expired = new RefreshToken("vechi", user, LocalDateTime.now().minusDays(1));
+        when(refreshTokenRepository.findByToken("vechi")).thenReturn(Optional.of(expired));
+
+        assertThatThrownBy(() -> authService.refresh(new RefreshRequest("vechi")))
+                .isInstanceOf(ApiException.class)
+                .extracting(e -> ((ApiException) e).getStatus())
+                .isEqualTo(HttpStatus.UNAUTHORIZED);
+    }
+
+    @Test
+    void logout_revokes_the_refresh_token_so_it_cannot_be_reused() {
+        User user = mock(User.class);
+        RefreshToken token = new RefreshToken("sesiune-activa", user, LocalDateTime.now().plusDays(1));
+        when(refreshTokenRepository.findByToken("sesiune-activa")).thenReturn(Optional.of(token));
+
+        authService.logout(new RefreshRequest("sesiune-activa"));
+
+        assertThat(token.isRevoked()).isTrue();
+    }
+
+    @Test
+    void logout_with_an_already_unknown_token_does_not_blow_up() {
+        // Deconectarea trebuie să fie idempotentă — un al doilea logout cu
+        // același token (sau unul deja invalid) nu e o eroare, doar un no-op.
+        when(refreshTokenRepository.findByToken("necunoscut")).thenReturn(Optional.empty());
+
+        authService.logout(new RefreshRequest("necunoscut"));
     }
 }

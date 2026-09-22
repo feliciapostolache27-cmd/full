@@ -100,4 +100,44 @@ class DiscountServiceTest {
 
         assertThat(result).isEqualByComparingTo("10.00");
     }
+
+    // --- Lecția 11 — reducere manuală per produs ------------------------------
+
+    @Test
+    void a_manual_product_discount_wins_over_any_category_strategy() {
+        when(product.getPrice()).thenReturn(new BigDecimal("100.00"));
+        when(product.getDiscountPercentage()).thenReturn(new BigDecimal("25"));
+
+        DiscountStrategy categoryStrategy = mock(DiscountStrategy.class);
+        lenient().when(categoryStrategy.appliesTo(any())).thenReturn(true);
+
+        DiscountService discountService = new DiscountService(List.of(categoryStrategy));
+
+        BigDecimal result = discountService.finalPriceFor(product);
+
+        assertThat(result).isEqualByComparingTo("75.00");
+        // Reducerea manuală răspunde direct — strategia pe categorie nici nu
+        // trebuie întrebată dacă produsul are deja una setată.
+        verifyNoInteractions(categoryStrategy);
+    }
+
+    @Test
+    void a_zero_manual_discount_is_treated_as_no_manual_discount() {
+        // 0% setat explicit nu trebuie tratat ca "reducere activă" — altfel un
+        // admin care retrage o reducere punând 0 în loc de gol ar bloca
+        // strategia de categorie fără niciun motiv.
+        when(product.getPrice()).thenReturn(new BigDecimal("50.00"));
+        when(product.getCategory()).thenReturn(category);
+        when(product.getDiscountPercentage()).thenReturn(BigDecimal.ZERO);
+
+        DiscountStrategy categoryStrategy = mock(DiscountStrategy.class);
+        when(categoryStrategy.appliesTo(category)).thenReturn(true);
+        when(categoryStrategy.apply(new BigDecimal("50.00"))).thenReturn(new BigDecimal("45.00"));
+
+        DiscountService discountService = new DiscountService(List.of(categoryStrategy));
+
+        BigDecimal result = discountService.finalPriceFor(product);
+
+        assertThat(result).isEqualByComparingTo("45.00");
+    }
 }
