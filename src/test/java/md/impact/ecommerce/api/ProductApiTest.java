@@ -1,9 +1,7 @@
 package md.impact.ecommerce.api;
 
-import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.notNullValue;
+import static io.restassured.RestAssured.*;
+import static org.hamcrest.Matchers.*;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,13 +12,6 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 
-/**
- * Lecția 9 — restul testelor din proiect (ApiIntegrationTest) folosesc MockMvc:
- * rapid, dar cererea nu iese niciodată printr-un socket real. Aici pornim
- * aplicația pe un port real (webEnvironment = RANDOM_PORT) și îi vorbim cu
- * RestAssured, exact ca Postman sau un client HTTP adevărat — asta e diferența
- * dintre "am testat controllerul" și "am testat API-ul".
- */
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 class ProductApiTest {
 
