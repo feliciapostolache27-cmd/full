@@ -1,9 +1,3 @@
--- Lecția 9 — schema + date de start pentru containerul Postgres pornit de
--- Testcontainers în AuthFlowIntegrationTest. Conținut identic cu
--- docker/init-db/01-tables.sql + 02-data.sql (Lecția 7) — combinate într-un
--- singur fișier fiindcă PostgreSQLContainer.withInitScript(...) rulează un
--- singur script, nu un folder întreg ca imaginea oficială Postgres.
-
 DROP TABLE IF EXISTS products;
 DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS users;

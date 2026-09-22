@@ -1,10 +1,8 @@
 package md.impact.ecommerce.integration;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.assertj.core.api.Assertions.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,14 +23,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import md.impact.ecommerce.entities.User;
 import md.impact.ecommerce.repositories.UserRepository;
 
-/**
- * Lecția 9 — testul din unitățile 4-8 folosea H2 (o bază "prefăcută", doar în
- * memorie); H2 se comportă aproape ca Postgres, dar nu identic (funcții,
- * constrângeri, tipuri). Aici pornim un Postgres real, într-un container Docker,
- * doar pentru acest test — exact motorul de bază de date care rulează și în
- * producție. Verifică fluxul complet register -> login -> /me, capăt la capăt,
- * inclusiv faptul că parola ajunge hash-uită în tabela reală "users".
- */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Testcontainers
@@ -45,9 +35,6 @@ class AuthFlowIntegrationTest {
 
     @DynamicPropertySource
     static void appProperties(DynamicPropertyRegistry registry) {
-        // Restul aplicației (JWT, cache, CORS, discount) e configurat separat de
-        // Postgres — Lecția 9 testează integrarea cu baza de date, nu cu Redis,
-        // așa că cache-ul rămâne "simple" (în memorie), ca în testele existente.
         registry.add("spring.cache.type", () -> "simple");
         registry.add("app.jwt.secret", () -> "testcontainers-secret-key-only-for-lesson-9-0123456789");
         registry.add("app.jwt.expiration-minutes", () -> "60");
