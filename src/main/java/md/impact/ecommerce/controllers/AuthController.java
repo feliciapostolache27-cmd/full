@@ -13,6 +13,7 @@ import jakarta.validation.Valid;
 import md.impact.ecommerce.dtos.AuthResponse;
 import md.impact.ecommerce.dtos.LoginRequest;
 import md.impact.ecommerce.dtos.MeResponse;
+import md.impact.ecommerce.dtos.RefreshRequest;
 import md.impact.ecommerce.dtos.RegisterRequest;
 import md.impact.ecommerce.services.AuthService;
 
@@ -43,5 +44,17 @@ public class AuthController {
     @GetMapping("/me")
     public MeResponse me(Authentication authentication) {
         return authService.me(authentication.getName());
+    }
+
+    @Operation(summary = "Schimbă un refresh token valid pe un access token nou (rotație)")
+    @PostMapping("/refresh")
+    public AuthResponse refresh(@Valid @RequestBody RefreshRequest request) {
+        return authService.refresh(request);
+    }
+
+    @Operation(summary = "Revocă un refresh token — deconectare reală, nu doar ștergerea tokenului local")
+    @PostMapping("/logout")
+    public void logout(@Valid @RequestBody RefreshRequest request) {
+        authService.logout(request);
     }
 }
