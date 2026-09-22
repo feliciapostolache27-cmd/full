@@ -15,6 +15,9 @@ spring:
 app:
   jwt:
     expiration-minutes: 120
+    # Lecția 11 — access tokenul rămâne scurt (de sus); refresh tokenul,
+    # ținut în baza de date (nu într-un JWT), trăiește mult mai mult.
+    refresh-days: 30
   discount:
     category-name: Accesorii
     percentage: 15
@@ -27,3 +30,24 @@ springdoc:
 logging:
   level:
     md.impact.ecommerce: INFO
+
+# Lecția 11 — OAuth2 / login social (awareness, nu implementare completă).
+# Necomentat mai jos ar înregistra un client Google real — lăsat comentat
+# intenționat, ca acest reference backend să pornească identic indiferent
+# dacă cineva are sau nu un OAuth app înregistrat. Ca să testați live:
+#   1. creați un OAuth client la https://console.cloud.google.com/apis/credentials
+#   2. redirect URI autorizat: http://localhost:8080/login/oauth2/code/google
+#   3. decomentați blocul de mai jos și setați APP_GOOGLE_CLIENT_ID/SECRET
+#   4. în SecurityConfig, adăugați .oauth2Login(Customizer.withDefaults())
+#      pe lanțul @Order(2) — nu e activat aici ca acest checkpoint să rămână
+#      "un exemplu funcțional", nu o funcționalitate mereu pornită.
+#
+# spring:
+#   security:
+#     oauth2:
+#       client:
+#         registration:
+#           google:
+#             client-id: ${APP_GOOGLE_CLIENT_ID}
+#             client-secret: ${APP_GOOGLE_CLIENT_SECRET}
+#             scope: profile, email
