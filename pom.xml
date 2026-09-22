@@ -40,6 +40,17 @@
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
+        <!-- Lecția 11: awareness OAuth2/login social — starter prezent, dar
+             .oauth2Login() NU e activat în SecurityConfig (vezi comentariul de
+             acolo). Fără nicio proprietate spring.security.oauth2.client.registration.*
+             setată, Spring Boot nu înregistrează niciun client și pornirea
+             aplicației e neschimbată — starter-ul e sigur de adăugat chiar și
+             fără credențiale reale. -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-oauth2-client</artifactId>
+        </dependency>
+
         <!-- Lecția 3: cache Redis -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
