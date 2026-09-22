@@ -31,6 +31,12 @@ public class CorsConfig {
         cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         cfg.setAllowedHeaders(List.of("*"));
         cfg.setAllowCredentials(false);
+        // Lecția 10 — headerele de securitate noi (X-Frame-Options etc.) sunt trimise
+        // de backend pe fiecare răspuns, dar un fetch() cross-origin din frontend nu
+        // le poate CITI din JS decât dacă sunt expuse explicit aici — altfel browserul
+        // le ascunde de res.headers.get(...), chiar dacă sosesc pe rețea.
+        cfg.setExposedHeaders(List.of(
+                "X-Frame-Options", "X-Content-Type-Options", "Content-Security-Policy", "Referrer-Policy"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", cfg);
