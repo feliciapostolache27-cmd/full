@@ -1,6 +1,6 @@
 package md.impact.ecommerce.config;
 
-import static org.springframework.security.config.Customizer.withDefaults;
+import static org.springframework.security.config.Customizer.*;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,17 +30,6 @@ public class SecurityConfig {
         this.jwtAuthFilter = jwtAuthFilter;
         this.corsConfigurationSource = corsConfigurationSource;
     }
-
-    // Lecția 10 — corecție față de prima trecere a revizuirii: frameOptions.disable()
-    // NU era o gafă fără motiv. ApiDocsButton din frontend chiar embedează Swagger UI
-    // într-un <iframe> real (Modal-ul de „Documentație API"), pe un origin diferit de
-    // backend (file:// la dublu-click, sau un port de dev) — deci nici măcar
-    // frameOptions.sameOrigin() n-ar fi lăsat iframe-ul să se încarce. Problema nu era
-    // CĂ s-a dezactivat protecția, era UNDE: dezactivarea se aplica global, peste tot
-    // API-ul, nu doar peste paginile Swagger care chiar au nevoie de ea. Soluția e un
-    // al doilea lanț de filtre, cu propria politică de headere, doar pentru rutele de
-    // documentație — Spring Security încearcă lanțurile în ordinea @Order și folosește
-    // primul al cărui securityMatcher se potrivește.
     @Bean
     @Order(1)
     public SecurityFilterChain swaggerFilterChain(HttpSecurity http) throws Exception {
@@ -74,13 +63,29 @@ public class SecurityConfig {
             .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
+                // Lecția 11 — /refresh și /logout NU trec prin JwtAuthFilter cu un
+                // access token (poate fi deja expirat, de-asta ceri unul nou) — se
+                // autentifică singure, cu refresh tokenul din corp, verificat în
+                // AuthService. De asta sunt publice aici, la fel ca /login.
+                .requestMatchers("/api/auth/refresh", "/api/auth/logout").permitAll()
                 .requestMatchers("/api/practice/**", "/api/cache/**", "/api/config/**").permitAll()
+                // Fără asta, orice excepție necatalogată (ex. o eroare de bază de date)
+                // ajunge la forward-ul intern spre /error, care — nefiind permis aici —
+                // e blocat de AuthorizationFilter și se transformă într-un 401 fals,
+                // ascunzând eroarea reală în spatele unui mesaj de autentificare.
+                .requestMatchers("/error").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/products/**", "/api/categories/**").permitAll()
+                // Checkpoint-ul lecției: gestionarea produselor/stocului, doar ADMIN.
+                .requestMatchers(HttpMethod.POST, "/api/products/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/api/products/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .anyRequest().authenticated())
-            .exceptionHandling(ex -> ex.authenticationEntryPoint(
-                (request, response, authException) ->
-                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Autentificare necesară")))
+            .exceptionHandling(ex -> ex
+                .authenticationEntryPoint((request, response, authException) ->
+                    writeJsonError(response, HttpServletResponse.SC_UNAUTHORIZED, "Acces restricționat pentru persoanele neautorizate"))
+                .accessDeniedHandler((request, response, accessDeniedException) ->
+                    writeJsonError(response, HttpServletResponse.SC_FORBIDDEN, "Acces interzis — necesită rol ADMIN")))
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
@@ -88,5 +93,11 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    private static void writeJsonError(HttpServletResponse response, int status, String message) throws java.io.IOException {
+        response.setStatus(status);
+        response.setContentType("application/json");
+        response.getWriter().write("{\"status\":" + status + ",\"message\":\"" + message + "\"}");
     }
 }
