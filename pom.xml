@@ -40,6 +40,17 @@
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
+        <!-- Lecția 11: awareness OAuth2/login social — starter prezent, dar
+             .oauth2Login() NU e activat în SecurityConfig (vezi comentariul de
+             acolo). Fără nicio proprietate spring.security.oauth2.client.registration.*
+             setată, Spring Boot nu înregistrează niciun client și pornirea
+             aplicației e neschimbată — starter-ul e sigur de adăugat chiar și
+             fără credențiale reale. -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-oauth2-client</artifactId>
+        </dependency>
+
         <!-- Lecția 3: cache Redis -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -49,8 +60,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
-
-        <!-- Lecția 3: documentație OpenAPI / Swagger UI -->
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
@@ -96,8 +105,6 @@
             <artifactId>h2</artifactId>
             <scope>test</scope>
         </dependency>
-
-        <!-- Lecția 9: teste de integrare cu bază de date reală -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-testcontainers</artifactId>
@@ -113,8 +120,6 @@
             <artifactId>postgresql</artifactId>
             <scope>test</scope>
         </dependency>
-
-        <!-- Lecția 9: teste API automate, peste HTTP real, nu MockMvc -->
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>rest-assured</artifactId>

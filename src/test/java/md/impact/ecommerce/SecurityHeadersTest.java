@@ -1,10 +1,7 @@
 package md.impact.ecommerce;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,11 +10,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-/**
- * Lecția 10 — checkpoint-ul lecției: o revizuire de securitate reală pe
- * endpoint-urile existente (nu una ipotetică), cu remedierile aplicate direct
- * în SecurityConfig și GlobalExceptionHandler, verificate aici.
- */
 @SpringBootTest
 @AutoConfigureMockMvc
 class SecurityHeadersTest {
